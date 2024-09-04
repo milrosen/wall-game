@@ -1,38 +1,57 @@
-.App {
-  text-align: center;
+.Grid {
+  width: calc(100% - 4em);
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  background-color: #FFF;
+  grid-gap: 1em;
+  padding: 2em;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.Square {
+  width: 100%;
+  padding-bottom: 100%;
+  background-color: #fff;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  border-radius: .3em;
+  position: relative;
 }
 
-.App-link {
-  color: #61dafb;
+.BWall::before {
+  content: "";
+  background-color: #1a1b1c;
+  height: 3px;
+  width: calc(100% + 1em);
+  bottom: calc(-0.5em - 1.5px);
+  left: -.5em;
+  position: absolute;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.LWall::after {
+  content: "";
+  background-color: #1a1b1c;
+  width: 3px;
+  height: calc(100% + 1em);
+  left: calc(-0.5em - 1.5px);
+  top: -.5em;  
+  position: absolute;
 }
+
+
+
+.PlayerA {
+  background-color: #30664D;
+}
+
+.PlayerB {
+  background-color: #EA4610;
+}
+
+.Highlight {
+  background-color: #999;
+}
+
+.Highlight:hover {
+  background-color: #777;
+}
+
