@@ -40,11 +40,11 @@
 
 
 .PlayerA {
-  background-color: #30664D;
+  background-color: #30664D !important;
 }
 
 .PlayerB {
-  background-color: #EA4610;
+  background-color: #EA4610 !important;
 }
 
 .Highlight {

@@ -18,13 +18,8 @@ export default function setupPlayer(loc, subscribeClickEvents) {
                 subscribeClickEvents(moveLoc => {
                     const validWalls = [[loc.x+1, loc.y], [loc.x-1, loc.y], [loc.x, loc.y+1], [loc.x, loc.y-1]]
                     if (containsCoord(validWalls, moveLoc)) {
-                        let vertical = loc.y === moveLoc[1];
-                        resolve({
-                            vertical: vertical,
-                            const: vertical ? loc.y : loc.x,
-                            span: [Math.min(vertical ? loc.x : loc.y, vertical ? moveLoc[0] : moveLoc[1]),
-                                   Math.max(vertical ? loc.x : loc.y, vertical ? moveLoc[0] : moveLoc[1])]
-                        })
+                        let [x, y] = moveLoc;
+                        resolve([[Math.min(loc.x, x), Math.min(loc.y,y)], [Math.max(loc.x, x), Math.max(loc.y, y)]])
                     }
                 })
             })
