@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Grid from './grid';
+import PlayerSelect from './playerSelect';
+
 // eslint-disable-next-line import/no-cycle
-import setupPlayer from './playerController';
+import setupHumanPlayer from './humanController';
 
 const clickObserver = {
   subscribers: [],
@@ -46,21 +48,21 @@ export function containsCoord(list, coord) {
   return contains;
 }
 
-function init(width, height) {
+function initState(width, height) {
   return {
     message: 'player 1 move',
+    currentTurn: 0,
     width,
     winner: false,
     gameActive: true,
     height,
-    players: [setupPlayer({ x: 1, y: height - 2 }, clickObserver.subscribe),
-      setupPlayer({ x: width - 2, y: 1 }, clickObserver.subscribe)],
+    players: [[1, height - 2], [width - 2, 1]],
     highlight: [],
     walls: [],
   };
 }
 
-function explore(state, x, y) {
+export function explore(state, x, y) {
   let n = getAdjacent(x, y, state.width, state.height);
   n = n.map(([x1, y1]) => [[Math.min(x, x1), Math.min(y, y1)], [Math.max(x, x1), Math.max(y, y1)]]);
 
@@ -95,9 +97,9 @@ function bfs(state, x1, y1, x2, y2) {
 }
 
 export function checkWin(state) {
-  const [p1, p2] = state.players;
-  const p1s = bfs(state, p1.x, p1.y, p2.x, p2.y);
-  const p2s = bfs(state, p2.x, p2.y, p1.x, p1.y);
+  const [[p1x, p1y], [p2x, p2y]] = state.players;
+  const p1s = bfs(state, p1x, p1y, p2x, p2y);
+  const p2s = bfs(state, p2x, p2y, p1x, p1y);
 
   if (p1s === p2s && p1s === 0) return [false, 0];
   if (p1s > p2s) return [true, 1];
@@ -111,21 +113,22 @@ export function getValidMoves(state, x, y) {
                               || coordsEqual(coord, [p2.x, p2.y])));
 }
 
-async function turn(state, setState) {
+async function turn(state, setState, currentPlayers) {
+  // has to be done because array-operations dont wait for awaits
   // eslint-disable-next-line no-restricted-syntax, prefer-const
-  for (let [i, player] of state.players.entries()) {
+  for (let [i, [x, y]] of state.players.entries()) {
     state = {
       ...state,
       message: state.winner ? state.message : `player ${i + 1} move`,
-      highlight: getValidMoves(state, player.x, player.y),
+      highlight: getValidMoves(state, x, y),
     };
     setState(state);
 
-    const newPlayer = await player.move(state);
+    const [x_, y_] = await currentPlayers[state.currentTurn].move(state);
 
-    if (containsCoord(getValidMoves(state, player.x, player.y), [newPlayer.x, newPlayer.y])) {
+    if (containsCoord(getValidMoves(state, x, y), [x_, y_])) {
       const newPlayers = state.players.slice();
-      newPlayers[i] = newPlayer;
+      newPlayers[i] = [x_, y_];
 
       state = {
         ...state,
@@ -134,16 +137,16 @@ async function turn(state, setState) {
     }
     setState(state);
 
-    player = newPlayer;
+    [x, y] = [x_, y_];
 
     state = {
       ...state,
       message: `player ${i + 1} build wall`,
-      highlight: getAdjacent(player.x, player.y, state.width, state.height),
+      highlight: getAdjacent(x, y, state.width, state.height),
     };
     setState(state);
 
-    const newWall = await player.wall(state);
+    const newWall = await currentPlayers[state.currentTurn].wall(state);
 
     state = {
       ...state,
@@ -154,7 +157,7 @@ async function turn(state, setState) {
     const [gameover, winner] = checkWin(state);
 
     if (gameover) {
-      state = init(state.width, state.height);
+      state = initState(state.width, state.height);
       state = {
         ...state,
         winner: true,
@@ -164,20 +167,39 @@ async function turn(state, setState) {
       setState(state);
       return state;
     }
+
+    state = {
+      ...state,
+      currentTurn: (state.currentTurn + 1) % state.players.length,
+    };
   }
   return state;
 }
-async function gameLoop(state, setState) {
+async function gameLoop(state, setState, currentPlayers) {
   let newState = state;
   while (state.gameActive) {
-    newState = await turn(newState, setState);
+    newState = await turn(newState, setState, currentPlayers);
   }
 }
 
 function Game({ width = 9, height = 9 }) {
-  const [state, setState] = useState(init(width, height));
+  const [state, setState] = useState(initState(width, height));
+  const [validPlayers, setValidPlayers] = useState({
+    human: setupHumanPlayer(clickObserver.subscribe),
+    random: {},
+  });
+  const [currentPlayers, setCurrentPlayers] = useState(
+    [validPlayers.human, validPlayers.human],
+  );
+  function handlePlayerChange(newPlayer, i) {
+    setValidPlayers(validPlayers);
+    setCurrentPlayers((prevCurrentPlayers) => {
+      prevCurrentPlayers[i] = newPlayer;
+    });
+  }
+
   useEffect(() => {
-    gameLoop(state, setState);
+    gameLoop(state, setState, currentPlayers);
   }, []);
 
   return (
@@ -188,7 +210,10 @@ function Game({ width = 9, height = 9 }) {
       clickObserver.observe([index % width, Math.floor(index / width)]);
     }}
     >
-      <div className="playerSelect" />
+      <PlayerSelect
+        validPlayers={validPlayers}
+        handlePlayerChange={(newPlayer, i) => handlePlayerChange(newPlayer, i)}
+      />
       {state.message}
       <Grid width={width} height={height} state={state} />
     </div>

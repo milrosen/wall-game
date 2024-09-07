@@ -6,9 +6,9 @@ import Square from './square';
 function renderState({ players, walls, highlight }, width, height) {
   const squareTypes = [...Array(width * height)].fill('');
 
-  players.forEach((player, i) => {
+  players.forEach(([x, y], i) => {
     const name = i === 0 ? ' PlayerA' : ' PlayerB';
-    squareTypes[player.x + player.y * width] += name;
+    squareTypes[x + y * width] += name;
   });
 
   highlight.forEach(([x, y]) => {
