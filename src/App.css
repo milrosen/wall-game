@@ -1,7 +1,10 @@
 .Grid {
   width: calc(100% - 4em);
+  max-width: 75vh;
+  margin: auto;
+  box-shadow: inset 0px 0px 0px 1em #1a1b1c;
   display: grid;
-  grid-template-columns: repeat(15, 1fr);
+  grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
   background-color: #FFF;
   grid-gap: 1em;
@@ -33,7 +36,7 @@
   width: 3px;
   height: calc(100% + 1em);
   left: calc(-0.5em - 1.5px);
-  top: -.5em;  
+  top: -.5em;
   position: absolute;
 }
 
@@ -54,4 +57,3 @@
 .Highlight:hover {
   background-color: #777;
 }
-
