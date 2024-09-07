@@ -1,9 +1,10 @@
 import './App.css';
-import Game from './components/game'
+import React from 'react';
+import Game from './components/game';
 
 function App() {
   return (
-    <Game/>
+    <Game />
   );
 }
 

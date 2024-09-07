@@ -1,7 +1,14 @@
-import React from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 
-export default function Square({type="", gridIndex}) {
+function Square({ type = '', gridIndex }) {
   return (
-    <div className={`Square ${type}`} gridindex={gridIndex}></div>
-  )
+    <div className={`Square ${type}`} data-grid-index={gridIndex} />
+  );
 }
+Square.propTypes = {
+  type: PropTypes.string,
+  gridIndex: PropTypes.string,
+};
+
+export default Square;
