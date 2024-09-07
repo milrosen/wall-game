@@ -1,8 +1,11 @@
 // eslint-disable-next-line import/no-cycle
-import { getValidMoves, containsCoord, explore } from './game';
+import {
+  getValidMoves, containsCoord, getAdjacent, toWall,
+} from './gameRules';
 
 export default function setupHumanPlayer(subscribeClickEvents) {
   return {
+    name: 'human',
     move: (state) => new Promise((resolve) => {
       subscribeClickEvents((moveLoc) => {
         const [x, y] = state.players[state.currentTurn];
@@ -15,11 +18,10 @@ export default function setupHumanPlayer(subscribeClickEvents) {
     wall: (state) => new Promise((resolve) => {
       subscribeClickEvents((moveLoc) => {
         const [x, y] = state.players[state.currentTurn];
-        const validWallLocations = explore(state, x, y);
+        const validWallLocations = getAdjacent(state, x, y);
         if (containsCoord(validWallLocations, moveLoc)) {
           const [x1, y1] = moveLoc;
-          resolve([[Math.min(x, x1), Math.min(y, y1)],
-            [Math.max(x, x1), Math.max(y, y1)]]);
+          resolve(toWall(x, y, x1, y1));
         }
       });
     }),
