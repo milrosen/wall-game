@@ -9,14 +9,14 @@ const RandomController = {
   move: (state) => new Promise((resolve) => {
     const [x, y] = state.players[state.currentTurn];
     const validMoves = getValidMoves(state, x, y);
-    resolve(validMoves[getRandomInt(validMoves.length)]);
+    setTimeout(() => resolve(validMoves[getRandomInt(validMoves.length)]), 300);
   }),
-  wall: (state) => {
+  wall: (state) => new Promise((resolve) => {
     const [x, y] = state.players[state.currentTurn];
     const validWallLocs = getAdjacent(state, x, y);
     const [x1, y1] = validWallLocs[getRandomInt(validWallLocs.length)];
-    return toWall(x, y, x1, y1);
-  },
+    setTimeout(() => resolve(toWall(x, y, x1, y1)), 200);
+  }),
 };
 
 export default RandomController;

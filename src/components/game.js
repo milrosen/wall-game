@@ -7,6 +7,7 @@ import {
   getValidMoves, containsCoord, checkWin, getAdjacent,
 } from './gameRules';
 import setupHumanPlayer from './humanController';
+import PythonInterpreter from './pythonInterpreter';
 
 const clickObserver = {
   subscribers: [],
@@ -131,6 +132,7 @@ function Game({ width = 9, height = 9 }) {
       clickObserver.observe([index % width, Math.floor(index / width)]);
     }}
     >
+      <PythonInterpreter />
       <PlayerSelect
         validPlayers={validPlayers}
         handlePlayerChange={(newPlayer, i) => handlePlayerChange(newPlayer, i)}
